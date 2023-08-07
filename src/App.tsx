@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {
   Button,
   FlatList,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -11,14 +12,22 @@ import {
 } from 'react-native';
 import Snackbar from 'react-native-snackbar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/Ionicons';
 import {useDispatch, useSelector} from 'react-redux';
-import {addTodo, checkTodo, loadTodo} from '../store/slices/todoSlice';
+import {
+  addTodo,
+  checkTodo,
+  deleteTodo,
+  loadTodo,
+} from '../store/slices/todoSlice';
 import {RootState, Todo} from '../store';
 
 function App(): JSX.Element {
   const [todoText, setTodoText] = useState('');
   const dispatch = useDispatch();
   const data = useSelector((state: RootState) => state.todos);
+
+  const deleteIcon = <Icon name="trash-outline" size={25} color="#900" />;
 
   const theme = useColorScheme();
   const isDarkTheme = theme === 'dark';
@@ -46,6 +55,10 @@ function App(): JSX.Element {
   //Mark todo as checked
   const handleCheckTodo = (id: number) => {
     dispatch(checkTodo(id));
+  };
+
+  const handleDelete = (id: number) => {
+    dispatch(deleteTodo(id));
   };
 
   //getching data from localstorage
@@ -87,21 +100,28 @@ function App(): JSX.Element {
   //FlatList renderItem component
   const renderItem = ({item}: {item: Todo}) => {
     return (
-      <TouchableOpacity
-        key={item.id}
-        style={[
-          styles.listContainer,
-          item.completed ? styles.checkItem : styles.uncheckItem,
-        ]}
-        onPress={() => handleCheckTodo(item.id)}>
-        <Text
+      <View style={styles.listView}>
+        <TouchableOpacity
+          key={item.id}
           style={[
-            styles.todoText,
-            item.completed ? styles.completed : styles.incomplete,
-          ]}>
-          {item.text}
-        </Text>
-      </TouchableOpacity>
+            styles.listContainer,
+            item.completed ? styles.checkItem : styles.uncheckItem,
+          ]}
+          onPress={() => handleCheckTodo(item.id)}>
+          <Text
+            style={[
+              styles.todoText,
+              item.completed ? styles.completed : styles.incomplete,
+            ]}>
+            {item.text}
+          </Text>
+        </TouchableOpacity>
+        <View style={styles.delete}>
+          <Pressable onPress={() => handleDelete(item.id)}>
+            {deleteIcon}
+          </Pressable>
+        </View>
+      </View>
     );
   };
 
@@ -131,7 +151,7 @@ function App(): JSX.Element {
         </View>
       )}
       <FlatList
-        style={styles.list}
+        // style={styles.list}
         data={data}
         // inverted
         keyExtractor={item => item?.id?.toString()}
@@ -175,6 +195,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 4,
     borderRadius: 8,
+    width: '90%',
   },
   checkItem: {
     backgroundColor: '#353935',
@@ -183,8 +204,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#50C878',
   },
   list: {
-    flex: 1,
+    // flex: 1,
+    // height: 'auto',
+    // flexDirection: 'row',
+    // justifyContent: 'space-between',
+  },
+  listView: {
     height: 'auto',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  delete: {
+    // minHeight: 40,
+    marginTop: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    borderRadius: 8,
   },
   todoText: {
     fontSize: 18,
