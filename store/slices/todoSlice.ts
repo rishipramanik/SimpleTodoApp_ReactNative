@@ -22,7 +22,7 @@ const todoSlice = createSlice({
       const checkedTodo = state.find(item => item.id === action.payload);
       if (checkedTodo) {
         const toDelete = state.indexOf(checkedTodo);
-        state.splice(toDelete, toDelete + 1);
+        state.splice(toDelete, 1);
       }
     },
   },
